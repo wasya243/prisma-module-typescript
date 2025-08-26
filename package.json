@@ -9,7 +9,6 @@
     "generate": "prisma generate",
     "build": "tsc && npm run copy:prisma",
     "copy:prisma": "cp -r generated dist/",
-    "prepublishOnly": "npm run build",
     "publish": "npm publish --access public"
   },
   "keywords": [
