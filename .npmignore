@@ -1,0 +1,11 @@
+Dockerfile
+docker-compose.yml
+migrations/
+.github/
+node_modules/
+*.sh
+index.ts
+.env
+prisma
+tsconfig.json
+generated

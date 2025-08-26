@@ -1,0 +1,23 @@
+node_modules
+# Keep environment variables out of version control
+.env
+
+generated/
+
+# Node.js
+node_modules/
+npm-debug.log*
+.env
+.DS_Store # macOS specific
+.vscode/ # VS Code specific
+logs/
+*.log
+pids/
+*.pid
+*.seed
+*.pid.lock
+.npm/ # Optional npm cache directory
+.eslintcache # Optional ESLint cache
+.node_repl_history # Optional REPL history
+.npmrc
+dist/

@@ -1,0 +1,38 @@
+services:
+  postgres:
+    image: postgres:14
+    restart: always
+    environment:
+      POSTGRES_DB: customer_db
+      POSTGRES_USER: customer_user
+      POSTGRES_PASSWORD: customer_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./migrations:/docker-entrypoint-initdb.d
+    networks:
+      - app_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U customer_user -d customer_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+  prisma:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: postgresql://customer_user:customer_password@postgres:5432/customer_db
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - app_network
+
+volumes:
+  pgdata:
+
+networks:
+  app_network:
+    driver: bridge

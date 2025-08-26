@@ -1,0 +1,74 @@
+name: CI - Generate Prisma Client and Publish
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:14
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_DB: customer_db
+          POSTGRES_USER: customer_user
+          POSTGRES_PASSWORD: customer_password
+        options: >-
+          --health-cmd="pg_isready -U customer_user -d customer_db"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          registry-url: https://registry.npmjs.org
+      
+      
+      - name: Wait for DB to be ready
+        run: |
+          echo "Waiting for Postgres to be ready..."
+          for i in {1..30}; do
+            pg_isready -h localhost -U customer_user -d customer_db && echo "Postgres is ready!" && break
+            echo "Still waiting... ($i)"
+            sleep 2
+          done
+
+      - name: Install dependencies
+        run: npm install
+      
+      - name: Apply all SQL migrations
+        run: |
+          for file in ./migrations/*.sql; do
+            echo "Applying migration: $file"
+            PGPASSWORD=customer_password psql -h localhost -U customer_user -d customer_db -f "$file"
+          done
+        env:
+          PGPASSWORD: customer_password
+
+      - name: Prisma Pull
+        run: npx prisma db pull
+        env:
+          DATABASE_URL: postgresql://customer_user:customer_password@localhost:5432/customer_db
+
+      - name: Prisma Generate
+        run: npx prisma generate
+        env:
+          DATABASE_URL: postgresql://customer_user:customer_password@localhost:5432/customer_db
+      
+      - name: Typescript compilation
+        run: npm run build
+
+      - name: Publish to NPM
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
