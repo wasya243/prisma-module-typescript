@@ -22,6 +22,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    volumes:
+      - ./generated:/app/generated
+      - ./dist:/app/dist
     environment:
       DATABASE_URL: postgresql://customer_user:customer_password@postgres:5432/customer_db
     depends_on:
