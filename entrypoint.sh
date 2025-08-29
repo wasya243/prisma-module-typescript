@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Wait for Postgres to be ready
+Wait for Postgres to be ready
 echo "⏳ Waiting for PostgreSQL to be ready..."
 until nc -z postgres 5432; do
   sleep 1
@@ -17,7 +17,9 @@ echo "Generating prisma client..."
 npm run build
 echo "Compiling package..."
 
-npm run test
-echo "Tests were run..."
-
-echo "✅ Package compiled"
+if [ "$RUN_TESTS" = "true" ]; then
+  npm run test
+  echo "✅ Tests were run"
+else
+  echo "✅ Package compiled"
+fi

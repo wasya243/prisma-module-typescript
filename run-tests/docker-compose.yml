@@ -21,12 +21,13 @@ services:
   prisma:
     build:
       context: ..
-      dockerfile: run-tests/Dockerfile 
+      dockerfile: Dockerfile 
     volumes:
       - ./generated:/app/generated
       - ./dist:/app/dist
     environment:
       DATABASE_URL: postgresql://customer_user:customer_password@postgres:5432/customer_db
+      RUN_TESTS: "true"
     depends_on:
       postgres:
         condition: service_healthy
